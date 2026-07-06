@@ -183,13 +183,14 @@ sl["pctile"] = sl.pct.rank(pct=True)  # 0..1, spreads colors evenly
 
 # color values: fixed log10 scale (absolute) or within-target percentile
 if absolute_scale:
-    # bounds in log10(percent): shares top out ~75%, GDP exposure can
-    # exceed 100% (offshore centers), hence the higher cap
-    z_lo, z_hi = (-2.0, 2.0) if metric_col == "goods_services_trade_share" \
-        else (-2.0, 3.0)
+    # bounds in log10(percent); GDP exposure above 100% (offshore
+    # centers, 105 rows) clamps to the top so data fills the range
+    z_lo, z_hi = -2.0, 2.0
     sl["z"] = np.clip(np.log10(sl.pct), z_lo, z_hi)
     cbar_tickvals = list(range(int(z_lo), int(z_hi) + 1))
     cbar_ticktext = [f"{10.0 ** v:g}%" for v in cbar_tickvals]
+    if metric_col == "goods_services_exposure_gdp":
+        cbar_ticktext[-1] = "≥100%"
     cbar_title = f"trade with target<br>(% {metric_unit}, log scale)"
 else:
     z_lo, z_hi = 0.0, 1.0
@@ -208,8 +209,8 @@ fig.add_trace(go.Choroplethmap(
     customdata=np.stack([sl.i_iso3, sl.i_name, sl.pct.round(3),
                          sl["rank"]], axis=-1),
     zmin=z_lo, zmax=z_hi,
-    colorscale=[[0.0, "#1F2733"], [0.3, "#4B5563"], [0.55, "#92600E"],
-                [0.8, AMBER], [1.0, YELLOW]],
+    colorscale=[[0.0, "#10141C"], [0.2, "#3E4756"], [0.4, "#7A5A16"],
+                [0.6, "#D97706"], [0.8, YELLOW], [1.0, "#FEF3C7"]],
     marker_opacity=0.78, marker_line_color="#C7CDD6", marker_line_width=0.5,
     colorbar=dict(
         title=dict(text=cbar_title, font=dict(color="#A8B3C7", size=12)),
