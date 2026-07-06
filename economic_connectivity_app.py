@@ -133,6 +133,14 @@ metric_label = st.sidebar.radio(
          "dependent the whole economy is on trade with the target; large "
          "closed economies score low on everyone by construction.")
 metric_col, metric_unit = METRICS[metric_label]
+scale_label = st.sidebar.radio(
+    "Map colors", ["Absolute (comparable across targets)",
+                   "Relative to this target (rank)"], index=0,
+    help="Absolute: fixed logarithmic scale, identical for every target and "
+         "year, so a map for Uganda is visibly darker than one for the USA. "
+         "Relative: colors spread by rank within the selected target, best "
+         "for seeing who is most tied to it regardless of level.")
+absolute_scale = scale_label.startswith("Absolute")
 if "target" not in st.session_state:
     st.session_state.target = "USA"
 target_name_by_iso = dict(zip(targets.j_iso3, targets.j_name))
@@ -173,25 +181,42 @@ sl = sl[sl.pct > 0]
 sl["rank"] = sl.pct.rank(ascending=False).astype(int)
 sl["pctile"] = sl.pct.rank(pct=True)  # 0..1, spreads colors evenly
 
+# color values: fixed log10 scale (absolute) or within-target percentile
+if absolute_scale:
+    # bounds in log10(percent): shares top out ~75%, GDP exposure can
+    # exceed 100% (offshore centers), hence the higher cap
+    z_lo, z_hi = (-2.0, 2.0) if metric_col == "goods_services_trade_share" \
+        else (-2.0, 3.0)
+    sl["z"] = np.clip(np.log10(sl.pct), z_lo, z_hi)
+    cbar_tickvals = list(range(int(z_lo), int(z_hi) + 1))
+    cbar_ticktext = [f"{10.0 ** v:g}%" for v in cbar_tickvals]
+    cbar_title = f"trade with target<br>(% {metric_unit}, log scale)"
+else:
+    z_lo, z_hi = 0.0, 1.0
+    sl["z"] = sl.pctile
+    cbar_tickvals = [0.02, 0.5, 0.98]
+    cbar_ticktext = ["least tied", "median", "most tied"]
+    cbar_title = "how tied to target<br>(rank among countries)"
+
 # ── map: dark web-map tiles (same style as the OECD country app) with
 #    gradient by exposure RANK (spreads the colors evenly) ──────────────────
 gj = load_geojson()
 fig = go.Figure()
 
 fig.add_trace(go.Choroplethmap(
-    geojson=gj, locations=sl.i_iso3, z=sl.pctile,
+    geojson=gj, locations=sl.i_iso3, z=sl.z,
     customdata=np.stack([sl.i_iso3, sl.i_name, sl.pct.round(3),
                          sl["rank"]], axis=-1),
-    zmin=0, zmax=1,
+    zmin=z_lo, zmax=z_hi,
     colorscale=[[0.0, "#1F2733"], [0.3, "#4B5563"], [0.55, "#92600E"],
                 [0.8, AMBER], [1.0, YELLOW]],
     marker_opacity=0.78, marker_line_color="#C7CDD6", marker_line_width=0.5,
     colorbar=dict(
-        title=dict(text="how tied to target<br>(rank among countries)",
-                   font=dict(color="#A8B3C7", size=12)),
-        tickvals=[0.02, 0.5, 0.98],
-        ticktext=["least tied", "median", "most tied"],
-        tickfont=dict(color="#A8B3C7"), outlinewidth=0, len=0.6, x=0.99),
+        title=dict(text=cbar_title, font=dict(color="#A8B3C7", size=12)),
+        tickvals=cbar_tickvals,
+        ticktext=cbar_ticktext,
+        tickfont=dict(color="#A8B3C7"), outlinewidth=0, len=0.6,
+        x=1.02, xanchor="left", xpad=0),
     hovertemplate=("<b>%{customdata[1]}</b><br>"
                    "trade with " + tname + ": %{customdata[2]}% " + metric_unit +
                    "<br>rank: #%{customdata[3]}<br>"
@@ -208,7 +233,7 @@ fig.add_trace(go.Choroplethmap(
 fig.update_layout(
     map=dict(style="carto-darkmatter-nolabels",
              center=dict(lat=28, lon=10), zoom=1.1),
-    height=620, margin=dict(l=0, r=0, t=10, b=0),
+    height=620, margin=dict(l=0, r=130, t=10, b=0),
     paper_bgcolor="rgba(0,0,0,0)",
 )
 
