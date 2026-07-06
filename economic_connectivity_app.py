@@ -184,15 +184,13 @@ sl["pctile"] = sl.pct.rank(pct=True)  # 0..1, spreads colors evenly
 # color values: fixed log10 scale (absolute) or within-target percentile
 if absolute_scale:
     # bounds in log10(percent), deliberately tighter than the data:
-    # ties below 0.03% clamp to the floor (negligible) and GDP exposure
-    # above 100% (offshore centers, 105 rows) clamps to the top, which
-    # spends the gradient where differences are meaningful
-    z_lo, z_hi = -1.5, 2.0
+    # ties below 0.03% clamp to the floor (negligible) and ties above
+    # 30% clamp to the top (extreme dependence either way), which
+    # spends the gradient where countries actually differ
+    z_lo, z_hi = -1.5, 1.5
     sl["z"] = np.clip(np.log10(sl.pct), z_lo, z_hi)
-    cbar_tickvals = [-1.5, -1.0, 0.0, 1.0, 2.0]
-    cbar_ticktext = ["≤0.03%", "0.1%", "1%", "10%", "100%"]
-    if metric_col == "goods_services_exposure_gdp":
-        cbar_ticktext[-1] = "≥100%"
+    cbar_tickvals = [-1.5, -1.0, 0.0, 1.0, 1.5]
+    cbar_ticktext = ["≤0.03%", "0.1%", "1%", "10%", "≥30%"]
     cbar_title = f"trade with target<br>(% {metric_unit}, log scale)"
 else:
     z_lo, z_hi = 0.0, 1.0
