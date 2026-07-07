@@ -1,4 +1,4 @@
 # research data never goes to git; the deployed app pulls it from R2
-data/app_panel.parquet
+data/*.parquet
 __pycache__/
 .streamlit/secrets.toml

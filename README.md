@@ -9,13 +9,17 @@ every other country is shaded by how tied it is to the target.
   of own total trade, or of own GDP (CEPII BACI, OECD-WTO BaTIS, WDI).
 - **UN voting alignment**: 1 − normalized ideal-point distance from UNGA
   roll-call votes (Bailey/Strezhnev/Voeten), 0–1, symmetric.
-- **Cultural-historical proximity**: mean of six binary ties — border,
-  languages, colonial links, shared past (CEPII GeoDist), 0–1, static.
+- **Cultural-historical proximity**: mean of four grouped binary ties —
+  border, language, colonial links, shared past (CEPII GeoDist), 0–1, static.
+- **Migration (migrant stock)**: migrants born in the target and living in
+  the shaded country / shaded country's population (UN DESA, WDI).
+- **Facebook social connectedness**: Meta/Facebook friendship connectedness
+  between the shaded country and target country (Meta AI for Good / HDX SCI).
 - **Aid dependence**: gross ODA received from the target / own GNI
   (OECD DAC2A, WDI), directed and sparse.
 
-Coverage 2010-2024 (cultural: time-invariant), ~190-230 countries per
-dimension.
+Coverage 2010-2024 where yearly data exist; cultural and Facebook SCI are
+time-invariant snapshots; ~175-230 countries per dimension.
 
 ## Data
 

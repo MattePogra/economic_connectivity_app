@@ -4,9 +4,10 @@ Country Connectivity Map.
 
 Interactive world map of bilateral country ties, one dimension at a time
 (separate indices, never a composite): economic exposure (trade), UN voting
-alignment, cultural-historical proximity, and aid dependence. Pick a
-dimension, a year, and a target country: the target turns red and every
-other country is shaded by how tied it is to the target on that dimension.
+alignment, cultural-historical proximity, aid dependence, migrant stock, and
+Facebook social connectedness. Pick a dimension, a year where relevant, and a
+target country: the target turns red and every other country is shaded by how
+tied it is to the target on that dimension.
 
 Data: trimmed parquet panels built by prepare_app_panels.py from the coded
 index files (country_i = the shaded country, country_j = the target).
@@ -33,12 +34,13 @@ ECON_METRICS = {
 }
 
 # One entry per connectivity dimension (separate indices, no composite).
-# scale: "log" = fixed log10 gradient over percent values;
+# scale: "log" = fixed log10 gradient over values;
 #        "linear01" = fixed linear gradient over a bounded 0-1 index.
 DIMENSIONS = {
     "Economic (trade)": dict(
         file="app_panel.parquet", yearly=True,
-        scale="log", log_ticks=[-1.5, -1.0, 0.0, 1.0, 1.5],
+        scale="log", percent=True,
+        log_ticks=[-1.5, -1.0, 0.0, 1.0, 1.5],
         log_labels=["≤0.03%", "0.1%", "1%", "10%", "≥30%"],
         tie_phrase="trade ties", value_word="trade with",
         sources="CEPII BACI (goods), OECD-WTO BaTIS (services), "
@@ -78,7 +80,7 @@ DIMENSIONS = {
             "country pairs share none of the four (index 0)."),
     "Migration (migrant stock)": dict(
         file="migration_panel.parquet", col="migrant_stock_share",
-        yearly=True, scale="log",
+        yearly=True, scale="log", percent=True,
         log_ticks=[-2.0, -1.0, 0.0, 1.0, 1.5],
         log_labels=["≤0.01%", "0.1%", "1%", "10%", "≥30%"],
         tie_phrase="migrant ties", value_word="migrants from",
@@ -95,9 +97,28 @@ DIMENSIONS = {
             "between those editions. Read levels, not year-to-year changes. "
             "(The data files also carry the share of *i*'s total immigrant "
             "population born in the target.)"),
+    "Facebook social connectedness": dict(
+        file="social_connectedness_panel.parquet",
+        col="facebook_social_connectedness_index",
+        yearly=False, scale="log", percent=False,
+        log_ticks=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+        log_labels=["≤10", "100", "1K", "10K", "100K", "1M", "≥10M"],
+        tie_phrase="Facebook friendship ties",
+        value_word="Facebook connectedness with",
+        unit="scaled SCI",
+        sources="Meta AI for Good / HDX Facebook Social Connectedness Index",
+        how="- The map shows Meta's country-level **Social Connectedness "
+            "Index** between Facebook users in country *i* and Facebook users "
+            "in the target country. Higher values mean a higher relative "
+            "probability that users across the two countries are Facebook "
+            "friends.\n- Symmetric and time-invariant in this release. Meta "
+            "does not provide a 2015-2025 panel, so read this as a stable "
+            "dyadic social-network stock, not annual variation.\n- The app "
+            "uses a fixed log scale because the raw scaled SCI is extremely "
+            "right-skewed."),
     "Aid dependence": dict(
         file="aid_dependence_panel.parquet", col="aid_dependence_index",
-        yearly=True, scale="log",
+        yearly=True, scale="log", percent=True,
         log_ticks=[-3.0, -2.0, -1.0, 0.0, 1.0, 1.5],
         log_labels=["≤0.001%", "0.01%", "0.1%", "1%", "10%", "≥30%"],
         tie_phrase="aid dependence", value_word="aid received from",
@@ -238,7 +259,8 @@ st.sidebar.caption(f"Sources: {dim['sources']}.")
 target = st.session_state.target if st.session_state.target in set(tlist) else tlist[0]
 tname = target_name_by_iso.get(target, target)
 year_txt = f" in **{year}**" if year else ""
-pct_dim = dim["scale"] == "log"   # log dims are percent-valued
+log_dim = dim["scale"] == "log"
+pct_dim = dim.get("percent", dim["scale"] == "log")
 
 st.title("Country Connectivity")
 st.caption(f"**{tname}** in red. Every other country glows by its "
@@ -253,7 +275,7 @@ if dim["yearly"]:
     sl = sl[sl.year == year]
 sl["val"] = sl[val_col] * (100 if pct_dim else 1)
 sl = sl[sl.val.notna()]
-if pct_dim:
+if log_dim:
     sl = sl[sl.val > 0]
 
 if sl.empty:
@@ -265,14 +287,15 @@ if sl.empty:
 sl["rank"] = sl.val.rank(ascending=False, method="min").astype(int)
 sl["pctile"] = sl.val.rank(pct=True)
 
-if absolute_scale and pct_dim:
-    # fixed log10 gradient over percent values; clamped at both ends so
+if absolute_scale and log_dim:
+    # fixed log10 gradient over values; clamped at both ends so
     # the colors are spent where countries actually differ
     z_lo, z_hi = dim["log_ticks"][0], dim["log_ticks"][-1]
     sl["z"] = np.clip(np.log10(sl.val), z_lo, z_hi)
     cbar_tickvals = dim["log_ticks"]
     cbar_ticktext = dim["log_labels"]
-    cbar_title = f"{dim['value_word']} target<br>(% {unit}, log scale)"
+    cbar_units = f"% {unit}" if pct_dim else unit
+    cbar_title = f"{dim['value_word']} target<br>({cbar_units}, log scale)"
 elif absolute_scale:
     z_lo, z_hi = 0.0, 1.0
     sl["z"] = sl.val
@@ -361,5 +384,5 @@ if hide_small:
 with st.expander("How this is computed"):
     st.markdown(dim["how"])
     st.caption("Part of a suite of separate bilateral connectivity indices "
-               "(economic, geopolitical, cultural, aid) — deliberately kept "
+               "(economic, geopolitical, cultural, migration, social, aid) — deliberately kept "
                "separate rather than blended into one composite number.")

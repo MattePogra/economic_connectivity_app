@@ -22,6 +22,7 @@ UN = f"{CODED}/connectivity_indices/un_alignment_index_country_pair_year_2010_20
 CULT = f"{CODED}/connectivity_indices/cultural_proximity_index_country_pair.csv"
 AID = f"{CODED}/connectivity_indices/aid_dependence_index_country_pair_year_2010_2024.csv"
 MIG = f"{CODED}/connectivity_indices/migration_index_country_pair_year_2010_2024_interpolated.csv"
+SCI = f"{CODED}/connectivity_indices/social_connectedness_index_country_pair.csv"
 
 R2_PREFIX = "derived/economic_connectivity/"
 
@@ -78,6 +79,13 @@ def main():
                    migrant_stock_share, migrant_stock
             FROM read_csv('{MIG}')
             WHERE migrant_stock_share IS NOT NULL""",
+        "social_connectedness_panel.parquet": f"""
+            SELECT country_i_iso3 AS i_iso3, country_i_name AS i_name,
+                   country_j_iso3 AS j_iso3, country_j_name AS j_name,
+                   facebook_social_connectedness_index,
+                   log10_facebook_social_connectedness_index
+            FROM read_csv('{SCI}')
+            WHERE facebook_social_connectedness_index IS NOT NULL""",
     }
     for fname, sql in jobs.items():
         out = os.path.join(DATA_DIR, fname)
