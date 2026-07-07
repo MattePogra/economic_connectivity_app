@@ -58,21 +58,24 @@ DIMENSIONS = {
         sources="Bailey/Strezhnev/Voeten UNGA ideal points (Harvard Dataverse)",
         how="- Each country-year has an estimated **ideal point** from UN "
             "General Assembly roll-call votes (Bailey, Strezhnev & Voeten "
-            "2017).\n- The index is 1 − |ideal point difference| / the "
-            "largest difference observed anywhere in 2010–2024, so **1 = "
-            "identical revealed preferences**, 0 = the most opposed pair "
-            "observed. Symmetric: i's alignment with j equals j's with i."),
+            "2017).\n- The map shows a display rescaling of the standard "
+            "ideal-point distance: 1 − |difference| / the largest difference "
+            "observed in 2010–2024, so **1 = identical revealed "
+            "preferences**, 0 = the most opposed pair observed. Symmetric; "
+            "analyses use the raw distance itself."),
     "Cultural-historical proximity": dict(
         file="cultural_proximity_panel.parquet", col="cultural_proximity_index",
         yearly=False, scale="linear01",
         tie_phrase="cultural-historical ties", value_word="proximity to",
         unit="(0–1)",
         sources="CEPII GeoDist (Mayer & Zignago 2011)",
-        how="- The index is the average of six yes/no ties: shared border, "
-            "common official language, language spoken by ≥9% in both, "
-            "colonial relationship, common colonizer after 1945, and having "
-            "been the same country.\n- Time-invariant (no year selector) and "
-            "symmetric. Most country pairs share none of the six (index 0)."),
+        how="- The index is the average of four concept groups: shared "
+            "border; language tie (common official language, or a language "
+            "spoken by ≥9% in both); colonial tie (colonial relationship, "
+            "or a common colonizer after 1945); and having been the same "
+            "country. Grouping related ties avoids double-counting them.\n"
+            "- Time-invariant (no year selector) and symmetric. Most "
+            "country pairs share none of the four (index 0)."),
     "Aid dependence": dict(
         file="aid_dependence_panel.parquet", col="aid_dependence_index",
         yearly=True, scale="log",
