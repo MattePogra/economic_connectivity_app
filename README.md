@@ -1,25 +1,31 @@
-# Economic Connectivity Map
+# Country Connectivity Map
 
-Interactive world map of bilateral economic exposure. Pick a year and a
-target country: the target turns red and every other country is shaded by
-how economically tied it is to the target, under one of two metrics:
+Interactive world map of bilateral country ties, one dimension at a time
+(a suite of separate indices, deliberately never blended into a composite).
+Pick a dimension, a year, and a target country: the target turns red and
+every other country is shaded by how tied it is to the target.
 
-- **Share of own total trade**: goods + services trade with the target /
-  the country's total goods + services trade.
-- **Share of own GDP**: goods + services trade with the target / the
-  country's GDP (current USD).
+- **Economic (trade)**: goods + services trade with the target as a share
+  of own total trade, or of own GDP (CEPII BACI, OECD-WTO BaTIS, WDI).
+- **UN voting alignment**: 1 − normalized ideal-point distance from UNGA
+  roll-call votes (Bailey/Strezhnev/Voeten), 0–1, symmetric.
+- **Cultural-historical proximity**: mean of six binary ties — border,
+  languages, colonial links, shared past (CEPII GeoDist), 0–1, static.
+- **Aid dependence**: gross ODA received from the target / own GNI
+  (OECD DAC2A, WDI), directed and sparse.
 
-Sources: CEPII BACI (goods trade, HS92), OECD-WTO BaTIS (services trade,
-balanced values), World Bank WDI (GDP). Coverage 2010-2024, ~230 countries.
+Coverage 2010-2024 (cultural: time-invariant), ~190-230 countries per
+dimension.
 
 ## Data
 
-The app loads a trimmed parquet panel (one row per country-pair-year). It
-looks for it in this order:
+The app loads one trimmed parquet panel per dimension, built by
+`prepare_app_panels.py` from the research project's coded index files.
+Each panel is looked up in this order:
 
-1. `data/app_panel.parquet` (local runs; not committed)
-2. the coded master CSV in the research project (local dev fallback)
-3. Cloudflare R2 via `st.secrets["r2"]` (deployed app)
+1. `data/<panel>.parquet` (local runs; not committed)
+2. Cloudflare R2 `derived/economic_connectivity/<panel>.parquet` via
+   `st.secrets["r2"]` (deployed app)
 
 Secrets format for deployment (Streamlit Cloud -> App settings -> Secrets):
 
