@@ -240,7 +240,7 @@ if sl.empty:
             "pick a donor country (USA, Japan, Germany, France, ...).")
     st.stop()
 
-sl["rank"] = sl.val.rank(ascending=False).astype(int)
+sl["rank"] = sl.val.rank(ascending=False, method="min").astype(int)
 sl["pctile"] = sl.val.rank(pct=True)
 
 if absolute_scale and pct_dim:
@@ -325,7 +325,7 @@ st.subheader(f"Most tied to {tname}" + (f" ({year})" if year else ""))
 ranked = sl.copy()
 if hide_small and "gdp_i" in ranked.columns:
     ranked = ranked[ranked.gdp_i >= 25e9].copy()
-ranked["rank"] = ranked.val.rank(ascending=False).astype(int)
+ranked["rank"] = ranked.val.rank(ascending=False, method="min").astype(int)
 val_header = (f"{dim['value_word']} target (%{' ' + unit if unit else ''})"
               if pct_dim else f"{dim['value_word']} target {unit}")
 top = (ranked.nlargest(10, "val")[["rank", "i_name", "i_iso3", "val"]]
