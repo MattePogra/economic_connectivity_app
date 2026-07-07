@@ -21,7 +21,7 @@ EXPO = f"{CODED}/economic_exposure/bilateral_economic_exposure_master_country_pa
 UN = f"{CODED}/connectivity_indices/un_alignment_index_country_pair_year_2010_2024.csv"
 CULT = f"{CODED}/connectivity_indices/cultural_proximity_index_country_pair.csv"
 AID = f"{CODED}/connectivity_indices/aid_dependence_index_country_pair_year_2010_2024.csv"
-MIG = f"{CODED}/connectivity_indices/migration_index_country_pair_edition_2010_2024.csv"
+MIG = f"{CODED}/connectivity_indices/migration_index_country_pair_year_2010_2024_interpolated.csv"
 
 R2_PREFIX = "derived/economic_connectivity/"
 

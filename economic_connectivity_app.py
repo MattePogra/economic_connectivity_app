@@ -88,10 +88,11 @@ DIMENSIONS = {
         how="- **People born in the target country living in country *i***, "
             "divided by *i*'s population (UN DESA International Migrant "
             "Stock; World Bank population).\n- Directed: the map shows where "
-            "the target's diaspora lives. Estimates exist only for the "
-            "edition years 2010, 2015, 2020, and 2024, which is why the "
-            "year selector offers just those.\n- Stocks are census-anchored "
-            "estimates: read levels, not changes between editions."),
+            "the target's diaspora lives.\n- DESA estimates exist for 2010, "
+            "2015, 2020, and 2024; other years are linear interpolations "
+            "between those editions. Read levels, not year-to-year changes. "
+            "(The data files also carry the share of *i*'s total immigrant "
+            "population born in the target.)"),
     "Aid dependence": dict(
         file="aid_dependence_panel.parquet", col="aid_dependence_index",
         yearly=True, scale="log",
