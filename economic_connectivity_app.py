@@ -76,6 +76,22 @@ DIMENSIONS = {
             "country. Grouping related ties avoids double-counting them.\n"
             "- Time-invariant (no year selector) and symmetric. Most "
             "country pairs share none of the four (index 0)."),
+    "Migration (diaspora)": dict(
+        file="migration_panel.parquet", col="migrant_stock_share",
+        yearly=True, scale="log",
+        log_ticks=[-2.0, -1.0, 0.0, 1.0, 1.5],
+        log_labels=["≤0.01%", "0.1%", "1%", "10%", "≥30%"],
+        tie_phrase="diaspora ties", value_word="diaspora from",
+        unit="of its population",
+        sources="UN DESA International Migrant Stock 2024, "
+                "World Bank WDI (population)",
+        how="- **People born in the target country living in country *i***, "
+            "divided by *i*'s population (UN DESA International Migrant "
+            "Stock; World Bank population).\n- Directed: the map shows where "
+            "the target's diaspora lives. Estimates exist only for the "
+            "edition years 2010, 2015, 2020, and 2024, which is why the "
+            "year selector offers just those.\n- Stocks are census-anchored "
+            "estimates: read levels, not changes between editions."),
     "Aid dependence": dict(
         file="aid_dependence_panel.parquet", col="aid_dependence_index",
         yearly=True, scale="log",

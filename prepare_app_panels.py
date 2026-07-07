@@ -21,6 +21,7 @@ EXPO = f"{CODED}/economic_exposure/bilateral_economic_exposure_master_country_pa
 UN = f"{CODED}/connectivity_indices/un_alignment_index_country_pair_year_2010_2024.csv"
 CULT = f"{CODED}/connectivity_indices/cultural_proximity_index_country_pair.csv"
 AID = f"{CODED}/connectivity_indices/aid_dependence_index_country_pair_year_2010_2024.csv"
+MIG = f"{CODED}/connectivity_indices/migration_index_country_pair_edition_2010_2024.csv"
 
 R2_PREFIX = "derived/economic_connectivity/"
 
@@ -71,6 +72,12 @@ def main():
             LEFT JOIN names ni ON ni.iso3 = a.country_i_iso3
             LEFT JOIN names nj ON nj.iso3 = a.country_j_iso3
             WHERE a.aid_dependence_index IS NOT NULL""",
+        "migration_panel.parquet": f"""
+            SELECT year, country_i_iso3 AS i_iso3, country_i_name AS i_name,
+                   country_j_iso3 AS j_iso3, country_j_name AS j_name,
+                   migrant_stock_share, migrant_stock
+            FROM read_csv('{MIG}')
+            WHERE migrant_stock_share IS NOT NULL""",
     }
     for fname, sql in jobs.items():
         out = os.path.join(DATA_DIR, fname)
