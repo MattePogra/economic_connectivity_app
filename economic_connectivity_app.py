@@ -146,7 +146,11 @@ st.markdown("""
   .stApp {
     background: radial-gradient(circle at 20% 10%, #23252a 0%, #131418 42%, #0a0b0d 100%);
     color: #E5E7EB;
-    font-family: 'IBM Plex Mono', monospace;
+  }
+  /* !important needed: Streamlit's theme CSS outranks plain selectors.
+     Material icon spans excluded (they render glyphs via their own font). */
+  .stApp, .stApp *:not([data-testid="stIconMaterial"]):not(.material-symbols-rounded) {
+    font-family: 'IBM Plex Mono', monospace !important;
   }
   header[data-testid="stHeader"] { background: transparent; }
   section[data-testid="stSidebar"] {
@@ -155,7 +159,6 @@ st.markdown("""
   }
   h1, h2, h3 {
     color: #FFF7ED;
-    font-family: 'IBM Plex Mono', monospace;
     letter-spacing: -0.02em;
   }
   .stCaption, p, label { color: #A8B3C7 !important; }
