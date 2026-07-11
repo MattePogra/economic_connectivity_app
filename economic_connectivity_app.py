@@ -142,11 +142,11 @@ st.set_page_config(page_title="Country Connectivity", layout="wide",
 
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
   .stApp {
     background: radial-gradient(circle at 20% 10%, #23252a 0%, #131418 42%, #0a0b0d 100%);
     color: #E5E7EB;
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'IBM Plex Mono', monospace;
   }
   header[data-testid="stHeader"] { background: transparent; }
   section[data-testid="stSidebar"] {
@@ -155,8 +155,8 @@ st.markdown("""
   }
   h1, h2, h3 {
     color: #FFF7ED;
-    font-family: 'Space Grotesk', sans-serif;
-    letter-spacing: -0.03em;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: -0.02em;
   }
   .stCaption, p, label { color: #A8B3C7 !important; }
   section[data-testid="stSidebar"] label { color: #FACC15 !important; font-weight: 600; }
@@ -348,6 +348,7 @@ fig.update_layout(
              center=dict(lat=28, lon=10), zoom=1.1),
     height=620, margin=dict(l=0, r=130, t=10, b=0),
     paper_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="IBM Plex Mono, monospace"),
 )
 
 event = st.plotly_chart(fig, use_container_width=True,
